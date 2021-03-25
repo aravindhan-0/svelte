@@ -1,4 +1,8 @@
+
 <script>
+    // import Counter from '$lib/Counter.svelte';
+    // import TailwindCss from '$lib/TailwindCSS.svelte';
+
   import { onMount } from "svelte";
   export let date;
 
@@ -7,42 +11,101 @@
     const newDate = await res.text();
     date = newDate;
   });
+  
+    let tasks = [];
+    if (typeof window !== 'undefined'){
+      let tasksFromStorage = localStorage.getItem('tasks');
+      tasks = tasksFromStorage ? JSON.parse(tasksFromStorage): []
+    }
+    
+    $: {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('tasks', JSON.stringify(tasks))
+      }
+    }
+  
+    let task='';
+  
+    function handleNewTask() {
+      tasks = [...tasks, {title:task, done: false, edit: false}]
+      task = '';
+    }
+  
 </script>
-
+  <!-- <TailwindCss /> -->
+  
 <main>
-  <h1>Svelte + Node.js API</h1>
-  <h2>
-    Deployed with
-    <a href="https://vercel.com/docs" target="_blank" rel="noreferrer noopener">
-      Vercel
-    </a>
-    !
-  </h2>
-  <p>
-    <a
-      href="https://github.com/vercel/vercel/tree/master/examples/svelte"
-      target="_blank"
-      rel="noreferrer noopener">
-      This project
-    </a>
-    is a
-    <a href="https://svelte.dev/">Svelte</a>
-    app with three directories,
-    <code>/public</code>
-    for static assets,
-    <code>/src</code>
-    for components and content, and
-    <code>/api</code>
-    which contains a serverless
-    <a href="https://nodejs.org/en/">Node.js</a>
-    function. See
-    <a href="/api/date">
-      <code>api/date</code>
-      for the Date API with Node.js
-    </a>
-    .
-  </p>
-  <br />
-  <h2>The date according to Node.js is:</h2>
-  <p>{date ? date : 'Loading date...'}</p>
+    <h1>ToDo!</h1>
+  
+    <div class="mb-3 pt-0 w-2/4 m-auto">
+      <input type="text" on:change={handleNewTask} bind:value={task} placeholder="Enter new task" class="px-3 py-3 placeholder-gray-400 text-gray-700 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-full"/>
+    </div>
+  
+    <div id="tasks">
+      <ul>
+        {#each tasks as task}
+        <li>
+          <input bind:checked={task.done} type="checkbox" >
+          <p class="font-serif text-lg {task.done ? 'line-through': ''}">{task.title}</p>
+        </li>
+        {/each}
+      </ul>
+  
+    </div>
 </main>
+
+<style>
+    :root {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+        'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+  
+    main {
+      text-align: center;
+      padding: 1em;
+      margin: 0 auto;
+    }
+  
+    h1 {
+      color: #ff3e00;
+      text-transform: lowercase;
+      font-size: 4rem;
+      font-weight: 100;
+      line-height: 1.1;
+      margin: 4rem auto;
+      max-width: 14rem;
+    }
+  
+    p{
+      display: inline-block;
+    }
+  
+    #tasks {
+      max-width: 50%;
+      display: flex;
+      justify-content: center;
+      margin: 0 auto;
+    }
+  
+    #tasks ul li{
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid black;
+      margin-bottom: 10px;
+    }
+  
+    #tasks ul li>*{
+      padding: 10px;
+    }
+  
+  
+    @media (min-width: 480px) {
+      h1 {
+        max-width: none;
+      }
+  
+      p {
+        max-width: none;
+      }
+    }
+</style>  
